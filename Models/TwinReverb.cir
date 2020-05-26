@@ -1,0 +1,163 @@
+.title TwinReverb
+
+.SUBCKT Transformers_TransformerPS1S2  gnd nPplus nPneg nSplus nSneg nSPct L1=0.5 L2=0.125 L3=0.125 K12=0.99 K13=0.99 K23=0.99 Rp=2 Rs1=1 Rs2=1
+L1 nP1  nPneg L1
+L2 nSPlus  nSPct L2
+L3 nSPct  nSPneg L3
+R1 nPplus nP1  {RP}
+K13 L1 L3 {K13}
+K12 L1 L2 {K12}
+K23 L2 L3 {K23}
+R2 nSneg nSPneg  {RS2}
+R3 nSPlus nSplus  {RS1}
+.ENDS
+
+
+
+.subckt 12AX7_model 1 6 3
+.param mu=100
+.param ex=1.4
+.param kg1=1060
+.param kp=600
+.param kvb=300
+.param  rgi=2000
+.param vct=.02
+.param  ccg=2.3p
+.param  cgp=2.4p
+.param  ccp=0.9p
+e1 7 0 value='v(1,3)/kp*log(1+exp(kp*(1/mu+v(2,3)/sqrt(kvb+v(1,3)*v(1,3)))))'
+re1 7 0 1g
+b1 1 3 I = 'max(pwr(v(7),ex)/kg1, 0)'
+rcp 1 3 1g
+c1 2 3 {ccg}
+c2 1 2 {cgp}
+c3 1 3 {ccp}
+r1 2 5 {rgi}
+v1 5 6 {vct}
+d3 6 3 dx
+.model dx d(is=1n rs=1 cjo=1pf tt=1n)
+.ends
+
+* Qucs 0.0.22  12AX7.sch
+.SUBCKT n12AX7 _net1 _net0 _net2
+X2 _net2 _net0 _net1 12AX7_model
+.ENDS
+
+
+.subckt 12AT7_model 1 6 3
+.param mu=60
+.param ex=1.35
+.param kg1=460
+.param kp=300
+.param kvb=300
+.param  rgi=2000
+.param vct=.02
+.param  ccg=2.3p
+.param  cgp=2.2p
+.param  ccp=1.0p
+e1 7 0 value='v(1,3)/kp*log(1+exp(kp*(1/mu+v(2,3)/sqrt(kvb+v(1,3)*v(1,3)))))'
+re1 7 0 1g
+b1 1 3 I = 'max(pwr(v(7),ex)/kg1, 0)'
+rcp 1 3 1g
+c1 2 3 {ccg}
+c2 1 2 {cgp}
+c3 1 3 {ccp}
+r1 2 5 {rgi}
+v1 5 6 {vct}
+d3 6 3 dx
+.model dx d(is=1n rs=1 cjo=1pf tt=1n)
+.ends
+
+* Qucs 0.0.22  12AT7.sch
+.SUBCKT n12AT7 _net1 _net0 _net2
+X1 _net2 _net0 _net1 12AT7_model
+.ENDS
+
+
+.subckt 6V6_model 1 2 3 4
+.param mu=12.67
+.param ex=1.198
+.param kg1=915
+.param kg2=4500
+.param kp=38.07
+.param kvb=30.2
+.param  rgi=1000
+.param vct=0.0
+.param  ccg=14p
+.param  cpg1=0.85p
+.param  ccp=12p
+re1  7 0  1G
+e1   7 0  value={v(4,3)/kp*log(1+exp((1/mu+v(2,3)/sqrt(kvb+v(4,3)*v(4,3)))*kp))}
+b1   1 3  I='max(pwr(v(7),ex)/kg1*atan(v(1,3)/kvb),0)'
+b2   4 3  I='max(pwr(v(4,3)/mu+v(2,3),ex)/kg2,0)'
+rcp  1 3  1G
+c1   2 3  {ccg}
+c2   1 2  {cpg1}
+c3   1 3  {ccp}
+r1   2 5  {rgi}
+d3   5 3  dx
+.model dx d(is=1n rs=1 cjo=10pf tt=1n)
+.ends
+
+* Qucs 0.0.22  6V6.sch
+.SUBCKT n6V6 _net0 _net1 _net2 _net3
+X2 _net0 _net2 _net3 _net1 6V6_model
+.ENDS
+
+.subckt guitar_amp 0 Vin Vout
+R1 0 Vin  1MEG
+R2 Vin _net0  68K
+R4 V1anode V1p  100K
+R3 0 _net1  1500
+C1 0 _net1  25U
+C20 V1anode _net2  250P
+R5 _net3 V1anode  100K
+R50 _net4 _net2  125K
+C21 _net3 _net5  0.1U
+C22 _net3 _net6  0.047U
+R53 _net5 _net4  125K
+R51 _net6 _net5  125K
+R52 0 _net6  5K
+R56 V2anode V1p  100K
+C24 0 V2cathode  25U
+R57 0 V2cathode  820
+R59 _net7 _net8  330K
+R60 _net9 _net7  330K
+C27 _net10 _net9  0.1U
+R61 _net10 _net7  22K
+R62 0 _net10  100
+R63 _net7 Vdiffcathode  270
+R64 V2p Vdiffanode1  47K
+R65 Vdiffanode2 V2p  47K
+R46 _net11 _net12  1K
+R47 _net13 _net12  1K
+XTRAN1 0  Vout 0 Vpower _net14 _net12 Transformers_TransformerPS1S2 L1=0.05 L2=0.5 L3=0.5 K12=0.99 K13=0.99 K23=0.99 Rp=2 Rs1=1 Rs2=1
+R48 0 Vout  5
+R44 _net15 _net16  1500
+R45 _net17 _net18  1500
+C18 Vdiffanode1 _net16  0.1U
+C19 Vdiffanode2 _net18  0.1U
+R42 _net19 _net16  68K
+R43 _net18 _net19  68K
+C28 0 _net16  2000P
+C29 0 _net18  2000P
+R49 Vout _net10  820
+V4 _net12 0 DC 405
+C32 0 V1p  20U
+C31 0 V2p  20U
+C30 0 _net12  20U
+R66 _net12 V2p  6K
+R67 V2p V1p  20K
+R68 V2cathode V1p  300K
+V5 _net19 0 DC -25V
+R58 _net20 _net8  220K
+C33 V2anode _net20  0.001U
+R54 _net21 _net4  300K
+R55 0 _net21  700K
+XSUB5 _net1 _net0 V1anode n12AX7
+XSUB10 V2cathode _net21 V2anode n12AX7
+XSUB11 Vdiffcathode _net8 Vdiffanode1 n12AT7
+XSUB12 Vdiffcathode _net9 Vdiffanode2 n12AT7
+XSUB8 Vpower _net11 _net15 0 n6V6
+XSUB9 _net14 _net13 _net17 0 n6V6
+.ends

@@ -1,0 +1,151 @@
+.title JCM-800
+
+.SUBCKT Transformers_TransformerPS1S2  gnd nPplus nPneg nSplus nSneg nSPct L1=0.5 L2=0.125 L3=0.125 K12=0.99 K13=0.99 K23=0.99 Rp=2 Rs1=1 Rs2=1
+L1 nP1  nPneg L1
+L2 nSPlus  nSPct L2
+L3 nSPct  nSPneg L3
+R1 nPplus nP1  {RP}
+K13 L1 L3 {K13}
+K12 L1 L2 {K12}
+K23 L2 L3 {K23}
+R2 nSneg nSPneg  {RS2}
+R3 nSPlus nSplus  {RS1}
+.ENDS
+
+
+
+.subckt 6V6_model 1 2 3 4
+.param mu=12.67
+.param ex=1.198
+.param kg1=915
+.param kg2=4500
+.param kp=38.07
+.param kvb=30.2
+.param  rgi=1000
+.param vct=0.0
+.param  ccg=14p
+.param  cpg1=0.85p
+.param  ccp=12p
+re1  7 0  1G
+e1   7 0  value={v(4,3)/kp*log(1+exp((1/mu+v(2,3)/sqrt(kvb+v(4,3)*v(4,3)))*kp))}
+b1   1 3  I='max(pwr(v(7),ex)/kg1*atan(v(1,3)/kvb),0)'
+b2   4 3  I='max(pwr(v(4,3)/mu+v(2,3),ex)/kg2,0)'
+rcp  1 3  1G
+c1   2 3  {ccg}
+c2   1 2  {cpg1}
+c3   1 3  {ccp}
+r1   2 5  {rgi}
+d3   5 3  dx
+.model dx d(is=1n rs=1 cjo=10pf tt=1n)
+.ends
+
+* Qucs 0.0.22  6V6.sch
+.SUBCKT n6V6 _net0 _net1 _net2 _net3
+X2 _net0 _net2 _net3 _net1 6V6_model
+.ENDS
+
+
+.subckt 12AX7_model 1 6 3
+.param mu=100
+.param ex=1.4
+.param kg1=1060
+.param kp=600
+.param kvb=300
+.param  rgi=2000
+.param vct=.02
+.param  ccg=2.3p
+.param  cgp=2.4p
+.param  ccp=0.9p
+e1 7 0 value='v(1,3)/kp*log(1+exp(kp*(1/mu+v(2,3)/sqrt(kvb+v(1,3)*v(1,3)))))'
+re1 7 0 1g
+b1 1 3 I = 'max(pwr(v(7),ex)/kg1, 0)'
+rcp 1 3 1g
+c1 2 3 {ccg}
+c2 1 2 {cgp}
+c3 1 3 {ccp}
+r1 2 5 {rgi}
+v1 5 6 {vct}
+d3 6 3 dx
+.model dx d(is=1n rs=1 cjo=1pf tt=1n)
+.ends
+
+* Qucs 0.0.22  12AX7.sch
+.SUBCKT n12AX7 _net1 _net0 _net2
+X2 _net2 _net0 _net1 12AX7_model
+.ENDS
+
+.subckt guitar_amp 0 Vin Vout
+R1 0 Vin  1MEG
+R2 Vin _net0  68K
+R4 V1anode V1p  100K
+C2 V1anode _net1  22N
+R5 _net2 _net1  470K
+C4 _net3 _net2  1N
+R9 V2anode V1p  100K
+C5 V2anode _net4  22N
+R10 _net5 _net4  470K
+R11 0 _net5  470K
+C6 _net5 _net4  470P
+R12 V3p V1p  10K
+R13 V3anode V3p  100K
+R15 0 V4cathode  100K
+R16 _net6 V4cathode  33K
+C7 _net7 V4cathode  470P
+C8 _net8 _net6  22N
+R17 Vpreamp _net7  110K
+R18 _net8 Vpreamp  110K
+R19 _net9 _net8  500K
+R20 _net10 _net9  11K
+R21 0 _net10  11K
+C9 _net10 _net6  22N
+R3 0 _net11  2.7K
+C1 0 _net11  680N
+R8 0 _net12  10K
+R14 0 _net13  650
+C10 _net14 _net15  22N
+R24 _net16 _net17  470
+R25 _net16 _net15  1MEG
+R26 _net18 _net16  10K
+C11 0 _net19  100N
+R28 0 _net18  4.7K
+R29 _net20 _net16  1MEG
+C12 _net18 _net20  100N
+C13 Vinvanode2 Vinvanode1  47P
+R30 Vinvanode2 V5p  100K
+R31 Vinvanode1 V5p  82K
+V4 _net21 0 DC 468
+R40 _net22 V5p  10K
+R41 V5p V3p  10K
+C14 0 V5p  50U
+C15 0 _net22  50U
+C17 0 V3p  50U
+C16 0 V1p  50U
+R42 _net23 _net24  150K
+R43 _net25 _net23  150K
+R44 _net26 _net24  5.6K
+R45 _net27 _net25  5.6K
+R47 _net28 _net22  1K
+C18 Vinvanode1 _net24  22N
+C19 Vinvanode2 _net25  22N
+V6 V3p 0 DC 348
+R23 _net14 Vpreamp  5K
+R22 0 _net14  995K
+R49 Vout _net18  100K
+R27 _net19 _net18  11K
+R50 _net22 _net21  20
+R46 _net29 _net22  1K
+V5 _net23 0 DC -37V
+R7 _net3 _net2  650K
+R6 0 _net3  350K
+C3 _net2 _net1  470P
+XTRAN1 0  Vout 0 _net30 _net31 _net22 Transformers_TransformerPS1S2 L1=0.05 L2=0.5 L3=0.5 K12=0.99 K13=0.99 K23=0.99 Rp=2 Rs1=1 Rs2=1
+R48 0 Vout  8
+XSUB16 _net30 _net29 _net26 0 n6V6
+XSUB17 _net31 _net28 _net27 0 n6V6
+XSUB14 _net17 _net15 Vinvanode1 n12AX7
+XSUB15 _net17 _net20 Vinvanode2 n12AX7
+XSUB13 V4cathode V3anode V3p n12AX7
+XSUB12 _net13 _net5 V3anode n12AX7
+XSUB11 _net12 _net3 V2anode n12AX7
+XSUB10 _net11 _net0 V1anode n12AX7
+.ends

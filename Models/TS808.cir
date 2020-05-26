@@ -1,0 +1,84 @@
+.title TS808
+
+.SUBCKT SpiceOpamp_NE5532 gnd 1 2 3 4 5
+*
+C1   11 12 7.703E-12
+C2    6  7 23.500E-12
+DC    5 53 DX
+DE   54  5 DX
+DLP  90 91 DX
+DLN  92 90 DX
+DP    4  3 DX
+EGND 99  0 POLY(2) (3,0) (4,0) 0 .5 .5
+FB    7 99 POLY(5) VB VC VE VLP VLN 0 2.893E6 -3E6 3E6 3E6 -3E6
+GA    6  0 11 12 1.382E-3
+GCM   0  6 10 99 13.82E-9
+IEE  10  4 DC 133.0E-6
+HLIM 90  0 VLIM 1K
+Q1   11  2 13 QX
+Q2   12  1 14 QX
+R2    6  9 100.0E3
+RC1   3 11 723.3
+RC2   3 12 723.3
+RE1  13 10 329
+RE2  14 10 329
+REE  10 99 1.504E6
+RO1   8  5 50
+RO2   7 99 25
+RP    3  4 7.757E3
+VB    9  0 DC 0
+VC    3 53 DC 2.700
+VE   54  4 DC 2.700
+VLIM  7  8 DC 0
+VLP  91  0 DC 38
+VLN   0 92 DC 38
+.MODEL DX D(IS=800.0E-18)
+.MODEL QX NPN(IS=800.0E-18 BF=132)
+.ENDS
+
+.subckt guitar_amp 0 Vin Vout
+C2 Vin _net0  20N
+R3 _net0 _net1  1K
+R4 0 Vin  2MEG
+Q2N2222A_1 _net2 _net1 Vbuffer QMOD_Q2N2222A_1 AREA=1 TEMP=26.85
+.MODEL QMOD_Q2N2222A_1 npn (Is=8.11e-14 Nf=1 Nr=1 Ikf=0.5 Ikr=0.225 Vaf=113 Var=24 Ise=1.06e-11 Ne=2 Isc=0 Nc=2 Bf=205 Br=4 Rbm=0 Irb=0 Rc=0.137 Re=0.343 Rb=1.37 Cje=2.95e-11 Vje=0.75 Mje=0.33 Cjc=1.52e-11 Vjc=0.75 Mjc=0.33 Xcjc=1 Cjs=0 Vjs=0.75 Mjs=0 Fc=0.5 Tf=3.97e-10 Xtf=0 Vtf=0 Itf=0 Tr=8.5e-08 Kf=0 Af=1 Ptf=0 Xtb=1.5 Xti=3 Eg=1.11 Tnom=26.85 )
+R5 0 Vbuffer  10K
+R6 _net1 _net3  510K
+R1 _net3 _net2  10K
+R2 0 _net3  10K
+C1 0 _net3  47U
+R7 _net4 _net3  10K
+XOP1 0  _net4 _net5 _net2 0 Voverdrive SpiceOpamp_NE5532
+R8 _net5 _net6  51K
+D_1N4148_1 Voverdrive _net5 DMOD_D_1N4148_1 AREA=1.0 Temp=26.85
+.MODEL DMOD_D_1N4148_1 D (Is=2.22e-10 N=1.65 Cj0=4e-12 M=0.333 Vj=0.7 Fc=0.5 Rs=0.0686 Tt=5.76e-09 Ikf=0 Kf=0 Af=1 Bv=75 Ibv=1e-06 Xti=3 Eg=1.11 Tcv=0 Trs=0 Ttt1=0 Ttt2=0 Tm1=0 Tm2=0 Tnom=26.85 )
+D_1N4148_2 _net5 Voverdrive DMOD_D_1N4148_2 AREA=1.0 Temp=26.85
+.MODEL DMOD_D_1N4148_2 D (Is=2.22e-10 N=1.65 Cj0=4e-12 M=0.333 Vj=0.7 Fc=0.5 Rs=0.0686 Tt=5.76e-09 Ikf=0 Kf=0 Af=1 Bv=75 Ibv=1e-06 Xti=3 Eg=1.11 Tcv=0 Trs=0 Ttt1=0 Ttt2=0 Tm1=0 Tm2=0 Tnom=26.85 )
+C4 _net5 Voverdrive  51P
+R10 0 _net7  4.7K
+C5 _net7 _net5  47N
+R11 Voverdrive _net8  1K
+C6 0 _net8  220N
+R12 _net8 _net3  10K
+XOP2 0  _net8 _net9 _net2 0 _net10 SpiceOpamp_NE5532
+R13 _net9 _net10  1K
+C7 _net11 _net12  220N
+R16 0 _net11  220
+C8 _net10 _net13  1U
+R17 _net13 _net14  1K
+C9 _net15 _net16  100N
+Q2N2222A_2 _net2 _net16 _net17 QMOD_Q2N2222A_2 AREA=1 TEMP=26.85
+.MODEL QMOD_Q2N2222A_2 npn (Is=8.11e-14 Nf=1 Nr=1 Ikf=0.5 Ikr=0.225 Vaf=113 Var=24 Ise=1.06e-11 Ne=2 Isc=0 Nc=2 Bf=205 Br=4 Rbm=0 Irb=0 Rc=0.137 Re=0.343 Rb=1.37 Cje=2.95e-11 Vje=0.75 Mje=0.33 Cjc=1.52e-11 Vjc=0.75 Mjc=0.33 Xcjc=1 Cjs=0 Vjs=0.75 Mjs=0 Fc=0.5 Tf=3.97e-10 Xtf=0 Vtf=0 Itf=0 Tr=8.5e-08 Kf=0 Af=1 Ptf=0 Xtb=1.5 Xti=3 Eg=1.11 Tnom=26.85 )
+R20 _net16 _net3  510K
+R22 _net17 _net18  100
+C10 _net18 Vout  10U
+R21 0 _net17  10K
+R23 0 Vout  10K
+V1 _net2 0 DC 9
+R18 _net14 _net15  0.1K
+R19 _net15 _net3  19.9K
+R9 _net6 Voverdrive  500K
+R15 _net8 _net12  10K
+R14 _net12 _net9  10K
+C3 Vbuffer _net4  1U
+.ends

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=spiceAmp
+GenericName=Guitar Processor
+GenericName[ru]=Гитарный процессор
+Comment=Non-Realtime Circuit Simulation Guitar Processor
+Comment[ru]=Моделирующий гитарный процессор
+Exec=spiceAmp
+Icon=spiceAmp
+Categories=AudioVideo;Audio;
+Terminal=false
+Type=Application
+Keywords=Audio;Sound;Guitar;
